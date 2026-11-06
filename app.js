@@ -321,6 +321,16 @@
     });
   }
 
+  function dividerNode(label, note) {
+    var d = document.createElement("div");
+    d.className = "grid__divider";
+    d.innerHTML =
+      '<span class="grid__divider-label">' + escapeHtml(label) + "</span>" +
+      '<span class="grid__divider-note">' + escapeHtml(note) + "</span>" +
+      '<span class="grid__divider-rule" aria-hidden="true"></span>';
+    return d;
+  }
+
   function renderGrid() {
     var grid = el("grid");
     grid.textContent = "";
@@ -328,7 +338,19 @@
     var sites = visibleSites();
     if (inShowcase) sites = sites.filter(function (s) { return s.size !== "hero"; });
 
-    sites.forEach(function (site, i) { grid.appendChild(renderCard(site, i)); });
+    // 演示项目与在售服务之间插一条通栏分隔；搜索或已按分类筛选时不插，避免分隔线错位
+    var demoName = categoryName("demo");
+    var demoTotal = sites.filter(function (s) { return s.category === "demo"; }).length;
+    var mayDivide = !state.query && state.category === "all" && demoTotal > 0 && demoTotal < sites.length;
+    var divided = false;
+
+    sites.forEach(function (site, i) {
+      if (mayDivide && !divided && site.category === "demo") {
+        grid.appendChild(dividerNode(demoName, "行业案例演示 · " + demoTotal));
+        divided = true;
+      }
+      grid.appendChild(renderCard(site, i));
+    });
 
     // 展示区已承载全部结果时，隐藏下方列表，避免出现「· 0」与空状态
     var board = el("board");

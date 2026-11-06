@@ -223,7 +223,29 @@ function heroCardOf(site) {
 }
 
 const heroSite = sites.filter((s) => s.size === "hero")[0];
-const gridCards = sites.filter((s) => s !== heroSite).map(cardOf);
+
+// 演示项目通栏分隔条：与 app.js renderGrid 同构，仅在全部服务且演示非全量时出现
+function dividerOf(label, note) {
+  return '<div class="grid__divider"><span class="grid__divider-label">' + esc(label) + "</span>" +
+    '<span class="grid__divider-note">' + esc(note) + "</span>" +
+    '<span class="grid__divider-rule" aria-hidden="true"></span></div>';
+}
+const gridList = sites.filter((s) => s !== heroSite);
+const demoList = gridList.filter((s) => s.category === "demo");
+const demoName = ((cfg.categories || []).filter((c) => c.id === "demo")[0] || {}).name || "演示项目";
+const gridCards = [];
+if (demoList.length && demoList.length < gridList.length) {
+  let divided = false;
+  gridList.forEach((s) => {
+    if (!divided && s.category === "demo") {
+      divided = true;
+      gridCards.push(dividerOf(demoName, "行业案例演示 · " + demoList.length));
+    }
+    gridCards.push(cardOf(s));
+  });
+} else {
+  gridList.forEach((s) => gridCards.push(cardOf(s)));
+}
 
 // 写入 showcase 与 grid 的原始 HTML（两者都以标记行定位，替换标记之间的内容）
 function fillBlock(startMarker, endMarker, cards) {
