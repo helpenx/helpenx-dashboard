@@ -534,7 +534,6 @@
   }
 
   function bindSearch() {
-    var box = el("search-box");
     var input = el("search");
     var clear = el("search-clear");
 
@@ -546,10 +545,8 @@
     input.addEventListener("focus", function () {
       renderSuggest();
       openSuggest();
-      box.classList.add("is-focus");
     });
     input.addEventListener("blur", function () {
-      box.classList.remove("is-focus");
       closeSuggest();
     });
     input.addEventListener("keydown", function (ev) {

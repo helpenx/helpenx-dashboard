@@ -152,7 +152,7 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
 .hsearch__clear:hover { color: var(--ink); border-color: var(--border-hover); background: #fff; }
 .hsearch__clear:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 .hsearch.is-busy .hsearch__kbd,
-.hsearch.is-focus .hsearch__kbd { opacity: 0; }
+.hsearch:focus-within .hsearch__kbd { opacity: 0; }
 
 /* ---------- 联想面板 ---------- */
 .suggest {
