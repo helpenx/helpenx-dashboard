@@ -1,5 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="HelpEnx">
-  <rect width="32" height="32" rx="8" fill="#0a7494" fill-opacity="0.10"/>
-  <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="#0a7494" stroke-opacity="0.30"/>
-  <path d="M12 9v14M20 9v14M12 16h8" fill="none" stroke="#0a7494" stroke-width="2.8" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="HelpEnx">
+  <defs>
+    <linearGradient id="hx" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e8bab"/>
+      <stop offset="0.55" stop-color="#2a56c8"/>
+      <stop offset="1" stop-color="#6a3cf5"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#hx)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round">
+    <path d="M20 20v28"/>
+    <path d="M45 30v18"/>
+    <path d="M20 34h25"/>
+  </g>
+  <circle cx="20" cy="48" r="5.5" fill="#ffffff" opacity="0.95"/>
+  <path d="M45 6c2 7.8 4.2 10 12 12-7.8 2-10 4.2-12 12-2-7.8-4.2-10-12-12 7.8-2 10-4.2 12-12Z" fill="#6ff0c4"/>
 </svg>
