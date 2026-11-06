@@ -13,11 +13,18 @@
     });
   }
 
+  function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+  // 多关键词：空格 / 逗号 / 顿号 分词，词与词之间是「与」关系
+  function tokensOf(q) {
+    return String(q || "").toLowerCase().split(/[\s,，、;；|]+/).filter(function (t) { return t.length; });
+  }
+
   function highlight(text, query) {
     var safe = escapeHtml(text);
-    if (!query) return safe;
-    var q = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return safe.replace(new RegExp("(" + q + ")", "gi"), "<mark>$1</mark>");
+    var toks = tokensOf(query);
+    if (!toks.length) return safe;
+    return safe.replace(new RegExp("(" + toks.map(escapeRe).join("|") + ")", "gi"), "<mark>$1</mark>");
   }
 
   function hostOf(url) {
@@ -45,17 +52,110 @@
     return "";
   }
 
-  function matches(site, query) {
-    if (!query) return true;
-    var hay = [site.name, site.tagline, site.description, site.url, hostOf(site.url),
-      categoryName(site.category), (site.features || []).join(" "), (site.pipeline || []).join(" ")].join(" ").toLowerCase();
-    return hay.includes(query.toLowerCase());
+  /* ---------- 搜索引擎：分词 + 字段加权评分 + 拉丁模糊匹配 ---------- */
+  function fieldText(list, fn) {
+    return (list || []).map(fn).join(" ").toLowerCase();
+  }
+
+  function buildIndex() {
+    state.index = (state.data.sites || []).map(function (site, i) {
+      return {
+        site: site,
+        order: i,
+        fields: [
+          { text: String(site.name || "").toLowerCase(), w: 40 },
+          { text: String(site.tagline || "").toLowerCase(), w: 26 },
+          { text: (hostOf(site.url) + " " + String(site.url || "")).toLowerCase(), w: 22 },
+          { text: categoryName(site.category).toLowerCase(), w: 18 },
+          { text: fieldText(site.features, identity), w: 15 },
+          { text: fieldText(site.pipeline, identity), w: 13 },
+          { text: String(site.description || "").toLowerCase(), w: 9 }
+        ]
+      };
+    });
+
+    // 能力 / 环节 / 分类词条：搜索框联想里作为「二级入口」
+    var caps = [];
+    function push(label, kind, site) {
+      var key = String(label || "").toLowerCase();
+      if (!key) return;
+      for (var i = 0; i < caps.length; i++) if (caps[i].key === key) return;
+      caps.push({ label: label, kind: kind, key: key, site: site });
+    }
+    (state.data.categories || []).forEach(function (c) { push(c.name, "分类", null); });
+    (state.data.sites || []).forEach(function (site) {
+      push(site.tagline, "定位", site);
+      (site.features || []).forEach(function (f) { push(f, "能力", site); });
+      (site.pipeline || []).forEach(function (p) { push(p, "环节", site); });
+    });
+    state.caps = caps;
+  }
+
+  function identity(s) { return s; }
+
+  function isLatin(t) { return /^[\x21-\x7e]+$/.test(t); }
+
+  function isSubsequence(hay, tok) {
+    var i = 0;
+    for (var j = 0; j < hay.length && i < tok.length; j++) {
+      if (hay.charAt(j) === tok.charAt(i)) i++;
+    }
+    return i === tok.length;
+  }
+
+  // 每个词都要命中（AND），取该词命中字段里的最高权重；漏词则整条排除
+  function scoreEntry(entry, tokens) {
+    var total = 0;
+    for (var i = 0; i < tokens.length; i++) {
+      var tok = tokens[i], best = 0;
+      for (var j = 0; j < entry.fields.length; j++) {
+        var f = entry.fields[j], hit = 0;
+        if (!f.text) continue;
+        if (f.text.indexOf(tok) !== -1) {
+          hit = f.w + (j === 0 && f.text.indexOf(tok) === 0 ? 12 : 0);
+        } else if (tok.length >= 3 && isLatin(tok) && isSubsequence(f.text, tok)) {
+          hit = f.w * 0.5;
+        }
+        if (hit > best) best = hit;
+      }
+      if (!best) return 0;
+      total += best;
+    }
+    return total;
+  }
+
+  // 返回 [{entry, score}]，已按相关度排序
+  function searchSites(query, category) {
+    var tokens = tokensOf(query), hits = [];
+    for (var i = 0; i < state.index.length; i++) {
+      var entry = state.index[i];
+      if (category !== "all" && entry.site.category !== category) continue;
+      var score = tokens.length ? scoreEntry(entry, tokens) : 1;
+      if (score > 0) hits.push({ entry: entry, score: score });
+    }
+    hits.sort(function (a, b) { return b.score - a.score || a.entry.order - b.entry.order; });
+    return hits;
+  }
+
+  function searchCaps(query, limit) {
+    var tokens = tokensOf(query), out = [];
+    for (var i = 0; i < state.caps.length; i++) {
+      var cap = state.caps[i], score = 0, ok = true;
+      for (var j = 0; j < tokens.length; j++) {
+        var tok = tokens[j];
+        if (cap.key.indexOf(tok) === 0) score += 12;
+        else if (cap.key.indexOf(tok) !== -1) score += 7;
+        else if (tok.length >= 3 && isLatin(tok) && isSubsequence(cap.key, tok)) score += 3;
+        else { ok = false; break; }
+      }
+      if (ok) out.push({ cap: cap, score: score + Math.max(0, 6 - cap.key.length / 4) });
+    }
+    out.sort(function (a, b) { return b.score - a.score || a.cap.key.length - b.cap.key.length; });
+    return out.slice(0, limit);
   }
 
   function visibleSites() {
-    return (state.data.sites || []).filter(function (s) {
-      return (state.category === "all" || s.category === state.category) && matches(s, state.query);
-    });
+    return searchSites(state.query, state.category).map(function (h) { return h.entry.site; });
   }
 
   function heroSite() {
@@ -235,27 +335,294 @@
     else title.textContent = "更多服务 · " + sites.length;
   }
 
-  function bindSearch() {
-    var input = el("search");
-    input.addEventListener("input", function () {
-      state.query = input.value.trim();
-      renderShowcase();
-      renderGrid();
+  /* ---------- 联想面板与搜索交互 ---------- */
+  var RECENT_KEY = "helpenx.portal.recent";
+  var ui = { items: [], active: -1, open: false };
+
+  function readRecents() {
+    try {
+      var raw = window.localStorage.getItem(RECENT_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(function (x) { return typeof x === "string" && x; }) : [];
+    } catch (e) { return []; }
+  }
+
+  function remember(text) {
+    var q = String(text || "").trim();
+    if (!q) return;
+    var list = readRecents().filter(function (x) { return x !== q; });
+    list.unshift(q);
+    try { window.localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, 6))); } catch (e) { /* 隐私模式忽略 */ }
+  }
+
+  function siteOption(site) {
+    var host = hostOf(site.url);
+    return '<div class="opt__icon">' + escapeHtml((site.name || "?").trim().charAt(0).toUpperCase()) + "</div>" +
+      '<div class="opt__text">' +
+        '<span class="opt__title">' + highlight(site.name, state.query) + "</span>" +
+        '<span class="opt__sub">' + highlight(host, state.query) +
+          (site.tagline ? " · " + highlight(site.tagline, state.query) : "") + "</span>" +
+      "</div>" +
+      '<span class="opt__go">打开 ↗</span>';
+  }
+
+  function keywordOption(item) {
+    return '<div class="opt__icon opt__icon--key">#</div>' +
+      '<div class="opt__text">' +
+        '<span class="opt__title">' + highlight(item.label, state.query) + "</span>" +
+        '<span class="opt__sub">' + escapeHtml(item.kind || "关键词") +
+          (item.site ? " · " + escapeHtml(item.site.name) : "") + "</span>" +
+      "</div>" +
+      '<span class="opt__go">筛选</span>';
+  }
+
+  function renderSuggest() {
+    var list = el("suggest-list"), meta = el("suggest-meta");
+    var sites = state.data.sites || [];
+    var items = [];
+
+    if (!tokensOf(state.query).length) {
+      var recents = readRecents();
+      if (recents.length) {
+        items.push({ type: "label", text: "最近搜索" });
+        recents.forEach(function (r) { items.push({ type: "keyword", label: r, kind: "历史" }); });
+      }
+      items.push({ type: "label", text: state.category === "all" ? "快速进入" : categoryName(state.category) + " · 快速进入" });
+      searchSites("", state.category).forEach(function (h) { items.push({ type: "site", site: h.entry.site }); });
+      meta.textContent = sites.length + " 项服务可用 · 输入关键词即时筛选";
+    } else {
+      var siteHits = searchSites(state.query, state.category);
+      var capHits = searchCaps(state.query, 4);
+      meta.textContent = siteHits.length + " 个服务 · " + capHits.length + " 个相关能力" +
+        (state.category === "all" ? "" : " · 已限定「" + categoryName(state.category) + "」");
+      if (siteHits.length) {
+        items.push({ type: "label", text: "服务" });
+        siteHits.slice(0, 5).forEach(function (h) { items.push({ type: "site", site: h.entry.site }); });
+      }
+      if (capHits.length) {
+        items.push({ type: "label", text: "能力与环节" });
+        capHits.forEach(function (h) {
+          items.push({ type: "keyword", label: h.cap.label, kind: h.cap.kind, site: h.cap.site });
+        });
+      }
+      if (!items.length) items.push({ type: "none", text: "没有匹配，换个关键词或放宽筛选" });
+      else if (siteHits.length) items.push({ type: "all" });
+    }
+
+    ui.items = items;
+    ui.active = -1;
+    list.textContent = "";
+    items.forEach(function (item, i) {
+      if (item.type === "label") {
+        var p = document.createElement("p");
+        p.className = "suggest__label";
+        p.textContent = item.text;
+        list.appendChild(p);
+        return;
+      }
+      var node = document.createElement("div");
+      if (item.type === "none") {
+        node.className = "suggest__none";
+        node.textContent = item.text;
+        list.appendChild(node);
+        return;
+      }
+      node.className = "opt";
+      node.id = "sug-" + i;
+      node.setAttribute("role", "option");
+      node.setAttribute("aria-selected", "false");
+      node.innerHTML = item.type === "site" ? siteOption(item.site)
+        : item.type === "keyword" ? keywordOption(item)
+        : '<div class="opt__icon opt__icon--key">&rarr;</div>' +
+          '<div class="opt__text"><span class="opt__title">在下方列表查看全部 ' + siteHitsCount() + ' 条结果</span></div>' +
+          '<span class="opt__go">Enter</span>';
+      list.appendChild(node);
     });
+  }
+
+  function siteHitsCount() {
+    return searchSites(state.query, state.category).length;
+  }
+
+  function isOpenable(i) {
+    var t = ui.items[i] && ui.items[i].type;
+    return t === "site" || t === "keyword" || t === "all";
+  }
+
+  function setActive(i) {
+    var input = el("search"), list = el("suggest-list");
+    for (var j = 0; j < ui.items.length; j++) {
+      var node = document.getElementById("sug-" + j);
+      if (!node) continue;
+      var on = j === i;
+      node.className = on ? "opt is-active" : "opt";
+      node.setAttribute("aria-selected", String(on));
+    }
+    ui.active = i;
+    input.setAttribute("aria-activedescendant", i >= 0 ? "sug-" + i : "");
+    if (i >= 0) {
+      var cur = document.getElementById("sug-" + i);
+      var delta = cur.getBoundingClientRect().top - list.getBoundingClientRect().top;
+      if (delta < 0) list.scrollTop += delta;
+      else if (delta + cur.offsetHeight > list.clientHeight) {
+        list.scrollTop += delta + cur.offsetHeight - list.clientHeight;
+      }
+    }
+  }
+
+  function moveActive(step) {
+    var n = ui.items.length;
+    // 尚未选中任何一项时：↓ 从第一条开始，↑ 从最后一条开始
+    var i = ui.active === -1 && step < 0 ? n : ui.active;
+    for (var k = 0; k < n; k++) {
+      i = (i + step + n) % n;
+      if (isOpenable(i)) { setActive(i); return; }
+    }
+    setActive(-1);
+  }
+
+  function openSuggest() {
+    el("suggest").hidden = false;
+    el("search").setAttribute("aria-expanded", "true");
+    ui.open = true;
+  }
+
+  function closeSuggest() {
+    el("suggest").hidden = true;
+    el("search").setAttribute("aria-expanded", "false");
+    el("search").setAttribute("aria-activedescendant", "");
+    ui.open = false;
+    ui.active = -1;
+  }
+
+  function activate(i) {
+    var item = ui.items[i];
+    if (!item) return;
+    var input = el("search");
+    if (item.type === "site") {
+      remember(state.query);
+      closeSuggest();
+      window.open(item.site.url, "_blank", "noopener");
+    } else if (item.type === "keyword") {
+      remember(item.label);
+      input.value = item.label;
+      applyQuery(item.label);
+      renderSuggest();
+      openSuggest();
+      input.focus();
+    } else if (item.type === "all") {
+      remember(state.query);
+      closeSuggest();
+      el("board").scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+  }
+
+  function applyQuery(value) {
+    state.query = String(value || "").trim();
+    el("search-box").classList.toggle("is-busy", !!state.query);
+    el("search-clear").hidden = !state.query;
+    renderShowcase();
+    renderGrid();
+  }
+
+  function resetAll() {
+    el("search").value = "";
+    state.category = "all";
+    applyQuery("");
+    renderChips();
+    renderSuggest();
+  }
+
+  function bindSearch() {
+    var box = el("search-box");
+    var input = el("search");
+    var clear = el("search-clear");
+
+    input.addEventListener("input", function () {
+      applyQuery(input.value);
+      renderSuggest();
+      openSuggest();
+    });
+    input.addEventListener("focus", function () {
+      renderSuggest();
+      openSuggest();
+      box.classList.add("is-focus");
+    });
+    input.addEventListener("blur", function () {
+      box.classList.remove("is-focus");
+      closeSuggest();
+    });
+    input.addEventListener("keydown", function (ev) {
+      if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+        ev.preventDefault();
+        if (!ui.open) { renderSuggest(); openSuggest(); setActive(-1); }
+        moveActive(ev.key === "ArrowDown" ? 1 : -1);
+      } else if (ev.key === "Enter") {
+        ev.preventDefault();
+        if (ui.open && ui.active >= 0) activate(ui.active);
+        else if (state.query) {
+          remember(state.query);
+          closeSuggest();
+          el("board").scrollIntoView({ block: "start", behavior: "smooth" });
+        }
+      } else if (ev.key === "Escape") {
+        ev.preventDefault();
+        if (state.query) {
+          input.value = "";
+          applyQuery("");
+          renderSuggest();
+        } else {
+          closeSuggest();
+          input.blur();
+        }
+      } else if (ev.key === "Tab") {
+        closeSuggest();
+      }
+    });
+
+    // 面板内点击不应让输入框失焦
+    el("suggest").addEventListener("mousedown", function (ev) { ev.preventDefault(); });
+    el("suggest-list").addEventListener("click", function (ev) {
+      var opt = ev.target.closest ? ev.target.closest(".opt") : null;
+      if (opt) activate(Number(opt.id.slice(4)));
+    });
+    el("suggest-list").addEventListener("mousemove", function (ev) {
+      var opt = ev.target.closest ? ev.target.closest(".opt") : null;
+      if (!opt) return;
+      var idx = Number(opt.id.slice(4));
+      if (idx !== ui.active) setActive(idx);
+    });
+
+    clear.addEventListener("click", function () {
+      input.value = "";
+      applyQuery("");
+      renderSuggest();
+      openSuggest();
+      input.focus();
+    });
+    el("empty-reset").addEventListener("click", function () {
+      resetAll();
+      input.focus();
+    });
+
     document.addEventListener("keydown", function (ev) {
       var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
-      if (ev.key === "Escape" && typing) {
-        input.value = "";
-        state.query = "";
-        input.blur();
-        renderShowcase();
-        renderGrid();
+      if (ev.key === "Escape" && !typing && (state.query || state.category !== "all")) {
+        resetAll();
       } else if ((ev.key === "/" || (ev.key === "k" && (ev.ctrlKey || ev.metaKey))) && !typing) {
         ev.preventDefault();
         input.focus();
         input.select();
       }
     });
+  }
+
+  /* 滚动后给吸顶页眉一条边界，避免搜索面板与内容糊在一起 */
+  function bindStickyHeader() {
+    var header = document.querySelector(".site-header");
+    var onScroll = function () { header.classList.toggle("is-stuck", window.scrollY > 4); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
   }
 
   function bindHeader() {
@@ -279,10 +646,12 @@
 
   loadData().then(function (data) {
     state.data = data;
+    buildIndex();
     bindHeader();
     renderChips();
     renderShowcase();
     renderGrid();
     bindSearch();
+    bindStickyHeader();
   });
 })();
