@@ -2,14 +2,14 @@
   "brand": {
     "name": "HelpEnx",
     "fullName": "HelpEnx 工作台",
-    "tagline": "从剧本到成片、从素材到工具：AIGC 生产、开源项目、在线工具箱与技术沉淀，收进同一块面板，一次点击即可进入。",
+    "tagline": "从剧本到成片、从素材到工具：AIGC 生产、开源项目、在线工具箱、行业演示与技术沉淀，收进同一块面板，一次点击即可进入。",
     "site": "helpenx.com",
     "github": "https://github.com/neopen"
   },
   "seo": {
-    "title": "HelpEnx 工作台｜短剧 AI 生产 · 开源项目 · 在线工具箱",
-    "description": "HelpEnx 工作台：HelpEnx Studio 短剧 AI 生产编排、PenShot AI 分镜生成、NeoTask Python 任务队列、Helpoke 在线工具箱与技术博客。从剧本到成片，一次点击直达。",
-    "keywords": ["HelpEnx", "HelpEnx 工作台", "短剧 AI 生成", "AI 分镜", "AIGC 生产编排", "数字资产", "Python 任务队列", "在线工具箱", "技术博客", "开源项目"],
+    "title": "HelpEnx 工作台｜短剧 AI 生产 · 开源项目 · 在线工具箱 · 行业演示",
+    "description": "HelpEnx 工作台：短剧 AI 生产编排 Studio、AI 分镜 PenShot、任务队列 NeoTask、在线工具箱 Helpoke、智慧城市与安检/TMS/ERP 行业演示、技术博客。全部服务一次点击直达。",
+    "keywords": ["HelpEnx", "HelpEnx 工作台", "短剧 AI 生成", "AI 分镜", "AIGC 生产编排", "数字资产", "Python 任务队列", "在线工具箱", "智慧城市", "智慧安检", "TMS 运输管理系统", "电商 ERP", "技术博客", "开源项目"],
     "url": "https://helpenx.com/",
     "image": "https://helpenx.com/assets/studio-pipeline.svg",
     "imageAlt": "HelpEnx Studio 短剧 AI 生产链路示意图",
@@ -21,6 +21,7 @@
     { "id": "studio", "name": "AIGC 生产", "shortName": "AIGC 生产" },
     { "id": "oss", "name": "开源项目", "shortName": "开源项目" },
     { "id": "tools", "name": "效率工具", "shortName": "效率工具" },
+    { "id": "demo", "name": "演示项目", "shortName": "演示项目" },
     { "id": "content", "name": "内容与扩展", "shortName": "博客内容" }
   ],
   "sites": [
@@ -73,6 +74,66 @@
       "description": "图片、视频、数据与加解密等常用处理全部在浏览器本地完成，文件不离开你的设备，打开即用、无需注册。",
       "features": ["本地处理", "文件不上传", "无需注册", "离线可用"],
       "keywords": ["在线工具箱", "图片压缩", "图片格式转换", "视频转 GIF", "JSON 格式化", "Base64 编解码", "二维码生成", "时间戳转换", "加解密工具", "免费在线工具", "浏览器本地处理"]
+    },
+    {
+      "id": "demo-city",
+      "name": "智慧城市管理平台",
+      "url": "https://city.pengline.cn",
+      "category": "demo",
+      "status": "live",
+      "icon": "city",
+      "tagline": "城市运行 IOT 演示",
+      "description": "面向城市运行管理的 IOT 演示平台：以物联设备台账与实时数据为基础，把数字城管、综合指挥、决策分析、智慧街面、环卫、市政、排水、照明、停车等 13 个模块汇聚到同一张态势图，支撑多部门协同调度与可视化决策。",
+      "features": ["13 个业务模块", "设备接入与台账", "24/7 实时监控", "综合指挥调度", "可视化决策大屏"],
+      "keywords": ["智慧城市", "IOT 设备接入", "城市运行管理", "数字城管", "综合指挥调度", "可视化大屏", "智慧环卫", "智慧停车", "物联网演示"]
+    },
+    {
+      "id": "demo-aiot",
+      "name": "智慧安检运营管理平台",
+      "url": "https://aiot.pengline.cn",
+      "category": "demo",
+      "status": "live",
+      "icon": "shield",
+      "tagline": "安检作业 AIOT 演示",
+      "description": "覆盖安检作业、集中判图、复检开包、处置交接与通行核验的一体化演示：安检机、安检门、毫米波门、人证对比与探测设备统一接入，人脸识别辅助通行管理，并以告警中心、维保工单、排班与绩效考核支撑日常运营。",
+      "features": ["集中判图与复检开包", "多类安检设备接入", "人脸识别通行核验", "告警中心与维保工单", "排班与绩效考核"],
+      "keywords": ["智慧安检", "AIOT", "集中判图", "复检开包", "通行核验", "人脸识别", "安检设备运维", "告警中心", "运营管理平台"]
+    },
+    {
+      "id": "demo-tms",
+      "name": "汇通物流 TMS",
+      "url": "https://tms.pengline.cn",
+      "category": "demo",
+      "status": "live",
+      "icon": "truck",
+      "tagline": "运输管理系统演示",
+      "description": "面向物流企业的运输管理演示系统：订单受理、在途跟踪、异常处理与费用结算在同一条流程内闭环，配套运力与车辆调度、按角色划分的数据权限，以及运输与经营指标的实时看板。",
+      "features": ["订单与在途跟踪", "异常处理闭环", "费用结算与对账", "运力与车辆调度", "角色权限控制", "实时经营指标"],
+      "keywords": ["TMS", "运输管理系统", "物流信息化", "在途跟踪", "运单管理", "费用结算", "运力调度", "供应链", "物流演示"]
+    },
+    {
+      "id": "demo-erp",
+      "name": "Sailfish ERP",
+      "url": "https://erp.pengline.cn",
+      "category": "demo",
+      "status": "live",
+      "icon": "ledger",
+      "tagline": "电商企业资源计划演示",
+      "description": "面向跨境与国内电商分销企业的静态演示 ERP：销售、采购、库存、财务四条主线一体化贯通，单据从创建到审核全流程可操作，用来展示订单履约、库存周转与成本核算在同一数据模型下的联动。",
+      "features": ["销售 / 采购 / 库存 / 财务一体化", "单据全流程可操作", "跨境与内销分销场景", "静态演示免注册"],
+      "keywords": ["ERP", "企业资源计划", "电商 ERP", "跨境电商", "进销存", "库存管理", "财务一体化", "单据流程", "分销管理"]
+    },
+    {
+      "id": "demo-lingxi",
+      "name": "灵犀 AIGC 创作台",
+      "url": "https://aigc.pengline.cn",
+      "category": "demo",
+      "status": "live",
+      "icon": "spark",
+      "tagline": "AIGC 创作与资产演示",
+      "description": "角色、道具、场景、短剧与 LoRA 模型的一体化创作、运行与资产管理演示：从发现广场浏览公开作品，到创作台内完成生成、调参与资产沉淀，用于验证轻量 AIGC 创作场景与数字资产的复用路径。",
+      "features": ["角色 / 道具 / 场景资产", "LoRA 模型管理", "短剧创作流程", "发现广场与作品分发"],
+      "keywords": ["灵犀", "AIGC 创作台", "LoRA 模型", "数字资产", "短剧创作", "AI 生成", "发现广场", "资产复用"]
     },
     {
       "id": "blog",

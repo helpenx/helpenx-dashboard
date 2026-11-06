@@ -356,6 +356,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
   border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
   border-radius: 11px;
 }
+.card__glyph { width: 23px; height: 23px; display: block; }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 .card__idtext { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .card__titlerow { display: flex; align-items: center; gap: 9px; }
 .card__name { font-size: 17px; font-weight: 650; letter-spacing: -0.005em; }

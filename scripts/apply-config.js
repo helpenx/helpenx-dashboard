@@ -163,7 +163,7 @@ const eol = html.indexOf("\r\n") !== -1 ? "\r\n" : "\n";
 })();
 
 // 预渲染卡片：不执行 JS 的爬虫（百度、搜狗等）与首屏直接拿到正文，JS 加载后由 app.js 重绘
-const ACCENTS = { studio: "#0a7494", oss: "#6d4bf0", tools: "#087a43", content: "#96650a" };
+const ACCENTS = { studio: "#0a7494", oss: "#6d4bf0", tools: "#087a43", demo: "#4d6484", content: "#96650a" };
 const STATUS_LABEL = { live: "运行中", wip: "开发中", pause: "已暂停", archived: "已归档" };
 
 function hostname(u) {
@@ -179,12 +179,17 @@ function featuresOf(site) {
   const items = (site.features || []).map((f) => "<li>" + esc(f) + "</li>");
   return items.length ? '<ul class="card__features">' + items.join("") + "</ul>" : "";
 }
+function iconGlyphOf(site) {
+  return site.icon
+    ? '<svg class="card__glyph" viewBox="0 0 24 24" aria-hidden="true"><use href="#hx-i-' + esc(site.icon) + '"></use></svg>'
+    : esc(String(site.name || "?").trim().charAt(0).toUpperCase());
+}
 function cardOf(site) {
   const status = site.status || "live";
   return '<a class="card" href="' + esc(site.url) + '" target="_blank" rel="noopener" style="--accent:' +
     (ACCENTS[site.category] || "#0a7494") + '">' +
     '<div class="card__id"><span class="card__icon" aria-hidden="true">' +
-      esc(String(site.name || "?").trim().charAt(0).toUpperCase()) + "</span>" +
+      iconGlyphOf(site) + "</span>" +
       '<span class="card__idtext"><span class="card__titlerow">' +
         '<span class="card__name">' + esc(site.name) + "</span>" +
         '<span class="dot dot--' + status + '" title="' + (STATUS_LABEL[status] || "") + '"></span>' +

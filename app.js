@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var ACCENTS = { studio: "#0a7494", oss: "#6d4bf0", tools: "#087a43", content: "#96650a" };
+  var ACCENTS = { studio: "#0a7494", oss: "#6d4bf0", tools: "#087a43", demo: "#4d6484", content: "#96650a" };
   var DEFAULT_ACCENT = "#0a7494";
   var STATUS_LABEL = { live: "运行中", wip: "开发中", pause: "已暂停", archived: "已归档" };
 
@@ -45,6 +45,12 @@
   }
 
   function accentFor(site) { return ACCENTS[site.category] || DEFAULT_ACCENT; }
+
+  function iconGlyph(site) {
+    return site.icon
+      ? '<svg class="card__glyph" viewBox="0 0 24 24" aria-hidden="true"><use href="#hx-i-' + escapeHtml(site.icon) + '"></use></svg>'
+      : escapeHtml((site.name || "?").trim().charAt(0).toUpperCase());
+  }
 
   function categoryName(id) {
     var cats = state.data.categories || [];
@@ -209,8 +215,7 @@
 
     card.innerHTML =
       '<div class="card__id">' +
-        '<span class="card__icon" aria-hidden="true">' +
-          escapeHtml((site.name || "?").trim().charAt(0).toUpperCase()) + "</span>" +
+        '<span class="card__icon" aria-hidden="true">' + iconGlyph(site) + "</span>" +
         '<span class="card__idtext">' +
           '<span class="card__titlerow">' +
             '<span class="card__name">' + highlight(site.name, query) + "</span>" +
