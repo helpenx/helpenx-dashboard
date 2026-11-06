@@ -1,8 +1,8 @@
 (function () {
   "use strict";
 
-  var ACCENTS = { studio: "#38d9f0", oss: "#a78bfa", tools: "#4ade80", content: "#fbbf24" };
-  var DEFAULT_ACCENT = "#38d9f0";
+  var ACCENTS = { studio: "#0a7494", oss: "#6d4bf0", tools: "#087a43", content: "#96650a" };
+  var DEFAULT_ACCENT = "#0a7494";
   var STATUS_LABEL = { live: "运行中", wip: "开发中", pause: "已暂停", archived: "已归档" };
 
   function el(id) { return document.getElementById(id); }
@@ -48,7 +48,7 @@
   function matches(site, query) {
     if (!query) return true;
     var hay = [site.name, site.tagline, site.description, site.url, hostOf(site.url),
-      categoryName(site.category), (site.features || []).join(" ")].join(" ").toLowerCase();
+      categoryName(site.category), (site.features || []).join(" "), (site.pipeline || []).join(" ")].join(" ").toLowerCase();
     return hay.includes(query.toLowerCase());
   }
 
@@ -79,6 +79,12 @@
       return "<li>" + highlight(f, query) + "</li>";
     }).join("");
 
+    var flow = (site.pipeline || []).map(function (step, i) {
+      return (i ? '<span class="card__flow-sep" aria-hidden="true">→</span>' : "") +
+        '<span class="card__flow-step">' + highlight(step, query) + "</span>";
+    }).join("");
+    var pipeline = flow ? '<div class="card__flow">' + flow + "</div>" : "";
+
     var repo = site.repo
       ? '<span class="card__repo">' + GITHUB_ICON + "源码仓库</span>"
       : "";
@@ -97,6 +103,7 @@
       "</div>" +
       '<div class="card__main">' +
         '<span class="card__tagline">' + highlight(site.tagline || "", query) + "</span>" +
+        pipeline +
         '<p class="card__desc">' + highlight(site.description || "", query) + "</p>" +
         (features ? '<ul class="card__features">' + features + "</ul>" : "") +
         repo +

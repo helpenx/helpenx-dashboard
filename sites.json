@@ -6,7 +6,7 @@
     "site": "helpenx.com"
   },
   "categories": [
-    { "id": "studio", "name": "AIGC 资产", "shortName": "AIGC 资产" },
+    { "id": "studio", "name": "AIGC 生产", "shortName": "AIGC 生产" },
     { "id": "oss", "name": "开源项目", "shortName": "开源项目" },
     { "id": "tools", "name": "效率工具", "shortName": "效率工具" },
     { "id": "content", "name": "内容与扩展", "shortName": "内容" }
@@ -19,9 +19,10 @@
       "category": "studio",
       "size": "hero",
       "status": "wip",
-      "tagline": "AIGC 资产中枢",
-      "description": "把散落在硬盘、聊天记录与各个工具里的素材、提示词和生成作品收进同一个资产库，让下一次创作从已有的积累开始，而不是从空白页开始。",
-      "features": ["素材库", "提示词版本", "作品归档", "跨项目复用"]
+      "tagline": "短剧 AI 生产编排台",
+      "description": "从创意、剧本到成片的全链路多 Agent 编排：自动完成分集分场、分镜脚本、角色与场景资产、关键帧、视频片段与配音剪辑。既支持整集一键生成，也可以在任意节点人工介入、用对话直接改写——例如「把第 3 场第 2 镜改成仰拍，时长缩到 4 秒」。",
+      "pipeline": ["创意 / 剧本", "分集分场", "分镜脚本", "角色 · 场景资产", "关键帧", "视频片段", "配音 · 口型 · BGM", "剪辑合成"],
+      "features": ["多模型路由与降级", "跨镜头跨集一致性", "自动质检与返工", "断点续跑与配额调度", "Tool / MCP / API 开放", "可用率与成本指标"]
     },
     {
       "id": "penshot",
