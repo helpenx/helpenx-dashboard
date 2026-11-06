@@ -70,11 +70,8 @@ body {
 }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
 .brand__mark {
-  width: 28px; height: 28px; display: grid; place-items: center;
-  font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--cyan);
-  background: rgba(10, 116, 148, 0.09);
-  border: 1px solid rgba(10, 116, 148, 0.26);
-  border-radius: 8px;
+  width: 30px; height: 30px; display: block; border-radius: 9px;
+  box-shadow: 0 1px 5px rgba(10, 20, 40, 0.16);
 }
 .brand__name { font-size: 15px; font-weight: 600; letter-spacing: 0.01em; }
 .brand__sub { font-size: 13px; color: var(--text-faint); }
