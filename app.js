@@ -65,6 +65,7 @@
         fields: [
           { text: String(site.name || "").toLowerCase(), w: 40 },
           { text: String(site.tagline || "").toLowerCase(), w: 26 },
+          { text: fieldText(site.keywords, identity), w: 34 },
           { text: (hostOf(site.url) + " " + String(site.url || "")).toLowerCase(), w: 22 },
           { text: categoryName(site.category).toLowerCase(), w: 18 },
           { text: fieldText(site.features, identity), w: 15 },
@@ -627,7 +628,6 @@
     var sites = state.data.sites || [];
     var hs = heroSite();
     if (brand.tagline) el("hero-tagline").textContent = brand.tagline;
-    if (brand.fullName) document.title = brand.fullName;
     el("year").textContent = new Date().getFullYear();
 
     var live = sites.filter(function (s) { return (s.status || "live") === "live"; }).length;
