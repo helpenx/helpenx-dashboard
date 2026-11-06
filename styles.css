@@ -70,6 +70,23 @@ body {
   border-radius: 8px;
 }
 .brand__name { font-size: 15px; font-weight: 600; letter-spacing: 0.01em; }
+.brand__sub { font-size: 13px; color: var(--text-faint); }
+.header__right { display: flex; align-items: center; gap: 18px; }
+.ghlink {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 500; color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 14px 6px 11px;
+  text-decoration: none;
+  transition: color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.ghlink:hover {
+  color: var(--ink);
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow);
+}
+.ghlink:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 .header__stat {
   font-size: 12.5px; color: var(--text-faint);
   display: flex; align-items: center; gap: 7px;
@@ -82,15 +99,7 @@ body {
 /* ---------- Hero ---------- */
 main { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
 
-.hero { padding: 96px 0 54px; max-width: 720px; }
-.hero__eyebrow {
-  display: inline-block;
-  font-size: 12px; letter-spacing: 0.06em; color: var(--cyan);
-  background: rgba(10, 116, 148, 0.07);
-  border: 1px solid rgba(10, 116, 148, 0.2);
-  border-radius: 999px; padding: 4px 13px;
-  margin-bottom: 22px;
-}
+.hero { padding: 46px 0 46px; max-width: 860px; }
 .hero__title {
   font-size: clamp(34px, 5.4vw, 54px);
   font-weight: 700; letter-spacing: -0.02em; line-height: 1.12;
@@ -100,7 +109,8 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
   background: linear-gradient(94deg, var(--cyan) 5%, var(--violet) 95%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.hero__sub { color: var(--text-dim); margin-top: 16px; font-size: 16px; max-width: 560px; }
+.hero__sub { color: var(--text-dim); margin-top: 16px; font-size: 16px; max-width: 860px; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 
 .search-wrap { position: relative; margin-top: 36px; }
 .search-icon {
@@ -146,6 +156,94 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
   border-radius: 2px;
 }
 .chip__count { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: inherit; font-size: 14px; font-weight: 500;
+  text-decoration: none; cursor: pointer;
+  border-radius: 10px; padding: 11px 20px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+.btn-primary {
+  color: #fff;
+  background: linear-gradient(94deg, var(--cyan) 0%, var(--violet) 100%);
+  box-shadow: 0 1px 2px rgba(15, 34, 67, 0.08), 0 8px 20px rgba(10, 116, 148, 0.22);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(15, 34, 67, 0.1), 0 12px 28px rgba(10, 116, 148, 0.28); }
+.btn-ghost {
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border-hover); background: #fff; }
+.btn__arrow { font-size: 13px; }
+
+/* ---------- 重点产品展示区 ---------- */
+.showcase { padding: 12px 0 44px; }
+.showcase[hidden] { display: none; }
+.showcase__card {
+  display: flex; flex-direction: column; gap: 24px;
+  padding: 28px 32px 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  animation: card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* 第一带：身份行 + 主操作 */
+.showcase__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+}
+.showcase__idline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.showcase__name { font-size: 24px; font-weight: 700; letter-spacing: -0.015em; color: var(--ink); }
+.showcase__domain { font-family: var(--mono); font-size: 12px; color: var(--text-faint); }
+
+/* 第二带：左文右图 */
+.showcase__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 36px; align-items: center;
+}
+.showcase__text { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.showcase__tagline { font-size: 15px; font-weight: 600; color: var(--accent); }
+.showcase__desc { font-size: 15px; color: var(--text-dim); line-height: 1.85; }
+.showcase__media {
+  position: relative; display: block;
+  width: 340px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  aspect-ratio: 680 / 460;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.showcase__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.showcase__media:hover { transform: translateY(-2px); border-color: var(--border-hover); box-shadow: var(--shadow); }
+.showcase__card.no-media .showcase__media { display: none; }
+.showcase__card.no-media .showcase__main { grid-template-columns: minmax(0, 1fr); }
+
+/* 第三带：通栏能力信息 */
+.showcase__bands {
+  display: flex; flex-direction: column; gap: 16px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(15, 34, 67, 0.08);
+}
+.showcase__bands .card__features { border-top: 0; padding-top: 0; margin-top: 0; }
+
+.board__title {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--text-faint); text-transform: none;
+  margin-bottom: 18px;
+}
+.board__title::after {
+  content: ""; flex: 1; height: 1px; background: var(--border);
+}
+.board__title[hidden] { display: none; }
 
 /* ---------- 卡片 ---------- */
 .board { padding: 8px 0 88px; }
@@ -274,9 +372,15 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
 
 /* ---------- 响应式 ---------- */
 @media (max-width: 900px) {
-  .hero { padding: 64px 0 42px; }
+  .hero { padding: 34px 0 34px; }
   .card--hero { flex-direction: column; gap: 22px; }
   .card--hero .card__id { flex: none; }
+  .showcase__card { gap: 20px; padding: 22px; }
+  .showcase__main { grid-template-columns: 1fr; gap: 22px; }
+  .showcase__media { width: 100%; max-width: 360px; }
+  .showcase__name { font-size: 21px; }
+  .showcase__bands { gap: 14px; padding-top: 18px; }
+  .ghlink span { display: none; }
 }
 @media (max-width: 680px) {
   main { padding: 0 20px; }
